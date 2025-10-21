@@ -1,0 +1,5 @@
+{ "jsonrpc": "2.0",
+  "method": "eth_call",
+  "params": [{ "to": "<token_address>", "data": "<encoded selector>" }, "latest"],
+  "id": 1 
+}

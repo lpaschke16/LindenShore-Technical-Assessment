@@ -2,12 +2,13 @@
 
 ## Uniswap v3 Liquidity Imbalance & Arbitrage Signal Tracker
 
-This tool samples two **Uniswap v3 USDC/WETH** pools on Ethereum (0.05% & 0.30%) and logs:
-- Spot price from `slot0.sqrtPriceX96`
-- 5-minute TWAP from `observe([300, 0])`
-- Spot–TWAP deviation (mean-reversion signal)
-- Cross-pool price deviation (intra-DEX arbitrage cue)
-- Liquidity (context for slippage)
+Samples Uniswap v3 USDC/WETH pools (0.05% & 0.30%) through the **Ethereum JSON-RPC API**.
+
+The script uses `web3.py`, which sends the same JSON-RPC calls described at
+[ethereum.org/developers/docs/apis/json-rpc](https://ethereum.org/developers/docs/apis/json-rpc/)
+— for example:
+- `eth_call` to read smart-contract state (`slot0`, `observe`, `liquidity`)
+- `eth_blockNumber` to confirm connectivity
 
 ### Quickstart
 ```bash

@@ -5,7 +5,7 @@
 Concentrated liquidity in v3 creates temporary microstructure dislocations across fee tiers. We observe them via spot–TWAP and cross-pool gaps.
 
 ## Methodology
-- Chain: Ethereum mainnet (public RPC)
+- Chain: Ethereum (public RPC)
 - Pools: USDC/WETH 0.05% and 0.30%
 - Cadence: 15s; Duration: 5–60m
 - Metrics: spot, 5m TWAP, spot–TWAP deviation, cross-pool deviation, liquidity
