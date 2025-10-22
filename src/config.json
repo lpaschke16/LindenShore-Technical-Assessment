@@ -1,0 +1,11 @@
+{
+    "ETH_RPC": "https://ethereum-rpc.publicnode.com",
+    "ETH_RPC_BACKUP": ["https://rpc.ankr.com/eth/2bd88d0b1410a01dc69088770efb89b5e3af7648f2882ae7c5abcd01e1f63483"],
+    "POOLS": {
+      "USDC_WETH_005": "0x88e6A0c2dDD26FEEb64F039a2c41296FcB3f5640",
+      "USDC_WETH_03":  "0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8"
+    },
+    "SAMPLE_INTERVAL_SECONDS": 5,
+    "RUN_DURATION_MINUTES": 1,
+    "OUTPUT_PATH": "./data/univ3_snapshots.csv"
+  }
