@@ -56,7 +56,26 @@ Results will be stored in the specified CSV file
 
 
 ## What Data the Script Collects
-Each row in ***univ3_snapshots.csv*** corresponds to one on-chain snapshot containing
+Each row in ***univ3_snapshots.csv*** corresponds to one on-chain snapshot containing the following columns:
+
+| Column                                                  | Description                                     |
+| ------------------------------------------------------- | ----------------------------------------------- |
+| **timestamp**                                           | UTC time of observation                         |
+| **poolA_address / poolB_address**                       | 0.05 % and 0.30 % Uniswap v3 pool addresses     |
+| **symbol_pair**                                         | Trading pair (USDC/WETH)                        |
+| **fee_a / fee_b**                                       | Fee tier percentages                            |
+| **priceA_token1_per_token0 / priceB_token1_per_token0** | Spot price from each pool (token 1 per token 0) |
+| **twapA_tick / twapB_tick**                             | 5-minute TWAP prices                            |
+| **twap_deviation_a / twap_deviation_b**                 | % deviation between spot and TWAP               |
+| **cross_pool_deviation**                                | % price difference across fee tiers             |
+| **liquidityA / liquidityB**                             | In-range liquidity values                       |
+| **tickA / tickB**                                       | Current tick index (discrete price step)        |
+
+
+
+
+
+
 
 
 
