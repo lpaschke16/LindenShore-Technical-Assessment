@@ -71,6 +71,11 @@ Each row in ***univ3_snapshots.csv*** corresponds to one on-chain snapshot conta
 | **liquidityA / liquidityB**                             | In-range liquidity values                       |
 | **tickA / tickB**                                       | Current tick index (discrete price step)        |
 
+## Why This Dataset was Selected
+Uniswap v3 represents an advanced decentralized market structure in the Ethereum ecosystem.  Unlike traditional order book structures, Uniswap pools are automated market makers that rely on liquidity curves and constant product pricing. In Uniswap v3 specifically, liquidity providers can concentrate their capital within specific price ranges, which creates multiple overlapping micro-markets for the same pair of assets. This introduces the concept of liquidity imbalances, in which situations where one fee tier or tick range has a slightly different price relative to another. 
+
+The USDC and WETH pair was chosen because it is one of the most liquid and actively arbitraged pairs on Ethereum. By tracking two Uniswap v3 pools for the same pair but with different fee tiers, I can directly observe how price equilibrium forms across parallel automated market makers and how arbitrageurs and liquidity conditions interact in real time. This data set was particularly interesting for a variety of reasons. The first was that it captures pure, on-chain market data, as I was able to make a direct connection to the chain using RPC. This procedure was entirely new for me going into this project, so it was very interesting to set up for the first time. Second, this dataset allowed me to directly measure arbitrage efficiency, liquidity depth, and mean-reversion through the Uniswap smart contracts themselves. Lastly, it provided insights into Maximal Extractable Value (MEV) activity by quantifying the micro-price deviations that commonly incentivise on-chain searchers. All in all, this dataset was both theoretically interesting and practically useful for revealing decentralized market microstructures and designing useful trading strategies that interact with on-chain liquidity. 
+
 ## What I Learned from the Data
 When running the script for longer time intervals, the data shows that the two Uniswap v3 pools, USDC and WETH (0.05% and 0.3% fee tiers) maintain extremely close prices, typically within 0.01% - 0.15% of each other. This narrow range shows the efficiency of Uniswap v3 and the way liquidity and arbitrage work on the Ethereum chain.
 
@@ -96,7 +101,24 @@ In summary, this project shows:
 - Ethereum's decentralized markets are extremely efficient, with arbitrage keeping Uniswap v3's fee tiers tightly synchronized
 - Uniswap's TWAP mechanism produces a stable, mean-reverting reference price that quickly corrects temporary order-flow imbalances
 - Liquidity governs how far prices can temporarily drift before arbitrage resores uniformity.
-- Observing and quantifying these deviations provides a window into the hidden mechanics of MEV, market efficiency, and liquidity health in decentralized finance. 
+- Observing and quantifying these deviations provides a window into the hidden mechanics of MEV, market efficiency, and liquidity health in decentralized finance.
+
+## Potential Applications
+
+### Arbitrage and Execution Optimization
+The tracker's cross-pool deviation metric can be integrated into algorithmic trading systems to indentify mis-pricings between Uniswap pools or between Uniswap and centralized exchanges. By setting the thresholds to certain values, you could back test profitability and latency requirements for on-chain arbitrage detectors.
+
+### MEV Detection Monitoring
+Persistent or unusually large deviations signal periods of MEV congestion or reduced arbitrage participation. Monitoring these metrics can help quantify network-wide arbitrage intensity measures or signal when blocks include multiple bundles.
+
+### Liquidity Optimization
+Liquidity providers can use this data to determine which fee tiers offer more stable pricing and lower impermanent loss. By observing how liquidity depth correlates with volatility and price alignment, liquidity providers can optimize their capital allocations to balance risk and yield.
+
+### Risk and Market Micro-Structure Analysis
+Traders and researchers can use this framework to evaluate:
+- How liquidity fragmentation across fee tiers affects volatility
+- Resiliency of automatic market makers under periods of high stress
+- Responsiveness of TWAP oracles that construct many DeFi lending and liquidation mechanisms.
 
 ## References
 - Ethereum JSON-RPC Spec: https://ethereum.org/developers/docs/apis/json-rpc
