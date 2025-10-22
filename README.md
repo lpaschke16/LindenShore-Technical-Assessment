@@ -72,17 +72,31 @@ Each row in ***univ3_snapshots.csv*** corresponds to one on-chain snapshot conta
 | **tickA / tickB**                                       | Current tick index (discrete price step)        |
 
 ## What I Learned from the Data
+When running the script for longer time intervals, the data shows that the two Uniswap v3 pools, USDC and WETH (0.05% and 0.3% fee tiers) maintain extremely close prices, typically within 0.01% - 0.15% of each other. This narrow range shows the efficiency of Uniswap v3 and the way liquidity and arbitrage work on the Ethereum chain.
+
 ### 1. Market Efficiency Across Fee Tiers
-After analyzing the data, it is clear that the cross-pool deviations consistently stayed within the range of 0.01 - ~0.15%, which is much less than the combined fee spread of 0.35%. This indicates that Ethereum's Uniswap pools are **tightly arbitraged** and highly efficient 
+After analyzing the data, it is clear that the cross-pool deviations consistently stayed within the range of 0.01 - ~0.15%, which is much less than the combined fee spread of 0.35%. This indicates that Ethereum's Uniswap pools are **tightly arbitraged** and highly efficient. Each pool is an independent liquidity venue for the same asset pair, but are constantly monitored by professional market makers and arbitrage trackers on centralized exchanges. When one pool becomes slightly cheaper or more expensive than another, they seemigly instantaneously execute quick swaps to restore uniformity. Since both pools use concentrated liquidity, the price impact of a single trade is small, so arbitrage opportunities quickly collapse after a few seconds. The price deviations between pools that I observed confirm that the pools ar ebeing continuously balanced by on-chain market activity. 
 
-### 2. Mean-Reversion Around TWAP
-TWAP deviations averaged to values near zero, which confirms that Uniswap v3 prices revert quickly to their recent averages. This is an indicator of high liquidity and efficient price discovery on the chain.
+### 2. Time-Weighted Average Price (TWAP) Deviation
+The TWAP deviation data reveals the short-term dynamics of Uniswap's liquidity. A TWAP represents a smoothed averaged price over a defined window (I used a 5 min window). When the current spot price equals the TWAP, it means prices are currently stable. When spot price diverges from TWAP, it suggests temporary buying or selling pressure. In my data, the TWAP deviations hovered around zero with slight fluctations of around $\pm$0.05%. This indicates that short-term price shocks are quickly absorbed and prices revert to their average quickly. This is evidence of a mean-reverting stucture, which is what is expected in a liquid pair like USDC and WETH where many arbitrageurs and market makers compete. 
 
-### 3. Liquidity effects Volatility
-In the data, when **liquidityA** or **liquidityB** dipped temporarily, cross-pool deviations widened consequently. This indicates that lower liquidity (in range) allows for greater short term disorder, which is consistent with well-known market theories.
+### 3. Liquidity affects Volatility
+In the data, when **liquidityA** or **liquidityB** dipped temporarily, cross-pool deviations widened consequently. This indicates that lower liquidity (in range) allows for greater short term disorder. This makes sense inuitively, as liquidity providers often pull capital or when large trades consume liquidity in a specific tick range, each additional trade will move the price further. This will widen the gap between fee tiers until arbitrage closes it again. In other words, liquidity is seemingly acting as a buffer, where the deeper the pool is, the tighter the price alignment across fee tiers will be. 
+
+### 4. Arbitrage
+The cross-pool deviations I recorded are much below the combined cost of trading through both pools. This means that, although these dislocations are observable, they are not profitable for direct arbitrage by a trader under any normal circumstances. Instead, they illustrate the embedded micro-inefficiencies that are exploited using certain techniques when deviations briefly exceed that threshold. In other words, this tracker is effectively detecting the same type of transient inefficiencies that on-chain searchers, like Maximal Extracable Value (MEV) consistently monitor. 
 
 ### 4. Infrastructure
 Using public **RPC endpoints** is sufficient for light analytics when including retry logic to catch instances of failed connections. On the other hand, I experimented with more in-depth Ethereum node connection methods, like running a local **Geth** node to host my own RPC endpoint on my local host. This method, and many similar methods using other technologies listed in https://ethereum.org/developers/docs/nodes-and-clients/, are more suitable for higher-frequency work. It was more straightforward to use the public RPC, so I opted for that method.
+
+### Summary
+From a broader perspective, the dataset demonstrates how Uniswap v3's design of multiple fee tiers and concetrated liquidity influences price behavior. Each fee tier attracts different types of liquidity providers, as 0.05% is sued for higher-volume, lower-volatility pairs, while 0.3% is for more volatile conditions. Despite their differences, they both respond almost identically to market movements. The very small price difference I measured confirms that even though liquidity is distributed across different pools, the market collectively prices assets as if there was a single, unified order book.
+
+In summary, this project showsL
+- Ethereum's decentralized markets are extremely efficient, with arbitrage keeping Uniswap v3's fee tiers tightly synchronized
+- Uniswap's TWAP mechanism produces a stable, mean-reverting reference price that quickly corrects temporary order-flow imbalances
+- Liquidity governs how far prices can temporarily drift before arbitrage resores uniformity.
+- Observing and quantifying these deviations provides a window into the hidden mechanics of MEV, market efficiency, and liquidity health in decentralized finance. 
 
 ## References
 - Ethereum JSON-RPC Spec: ethereum.org/developers/docs/apis/json-rpc
