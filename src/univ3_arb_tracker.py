@@ -15,7 +15,6 @@ import json
 import time
 import pandas as pd
 from web3 import Web3
-from config import config
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal, getcontext
 import os
@@ -39,16 +38,16 @@ def q_96():
 
 
 def load_config():
-"""
-- Loads the configuration file. 
--If it doesn't exist, it loads the example configuration file.
--Returns the configuration as a dictionary (JSON object).
+    """
+    - Loads the configuration file. 
+    -If it doesn't exist, it loads the example configuration file.
+    -Returns the configuration as a dictionary (JSON object).
 
-"""
-   cfg = os.path.join(ROOT, 'config.json')
-   if os.path.exists(cfg):
-    with open(cfg, 'r') as f:
-        return json.load(f)
+    """
+    cfg = os.path.join(ROOT, 'config.json')
+    if os.path.exists(cfg):
+        with open(cfg, 'r') as f:
+            return json.load(f)
     with open(os.path.join(ROOT, 'config.example.json'), 'r') as f:
         return json.load(f)
 
@@ -65,7 +64,7 @@ def price_from_sqrt_price_x96(sqrt_price_x96, decimals_0, decimals_1, invert=Fal
         The interpretable price as a Decimal (ensures high precision).
     """
 
-    ratio = (Decimal(sqrt_price_x96) ** 2) / Decimal(2) ** 96
+    ratio = (Decimal(sqrt_price_x96) ** 2) / (q_96() ** 2) # Note Decimal(2) ** 96 == q_96()
     scale = Decimal(10) ** (decimals_0 - decimals_1)
     p1_per_p0 = ratio * scale # token 1 per token 0
     return (Decimal(1) / p1_per_p0) if invert else p1_per_p0 # token 0 per token 1 if invert is True
@@ -84,7 +83,7 @@ def connect_web3_client(rpc_url):
         print(f"Error connecting to Web3 client: {e}")
         return None
 
-def load_erc20_abi(name):
+def load_abi(name):
     """
     Small helper to load a contract ABI JSON by logical name from `src/abi/` directory.
     Args:
@@ -123,13 +122,23 @@ def get_pool_view(w3, pool_address):
 
     """
 
-    pool = w3.eth.contract(address = Web3.to_checksum_address(pool_address), abi = load_erc20_abi('univ3_pool'))
-    token0 = w3.eth.contract(address = pool.functions.token0().call(), abi = load_erc20_abi('erc20'))
-    token1 = w3.eth.contract(address = pool.functions.token1().call(), abi = load_erc20_abi('erc20'))
-    symbol0, token1 = token0.functions.symbol().call(), token1.functions.symbol().call()
-    decimals0, decimals1 = token0.functions.decimals().call(), token1.functions.decimals().call()
+    pool = w3.eth.contract(address = Web3.to_checksum_address(pool_address), abi = load_abi('univ3_pool'))
+    
+    token0_address = pool.functions.token0().call()
+    token1_address = pool.functions.token1().call()
+
+    erc20 = load_abi('erc20')
+
+    token0 = w3.eth.contract(address = token0_address, abi = erc20)
+    token1 = w3.eth.contract(address = token1_address, abi = erc20)
+
+    symbol0 = token0.functions.symbol().call()
+    symbol1 = token1.functions.symbol().call()
+    decimals0 = token0.functions.decimals().call()
+    decimals1 = token1.functions.decimals().call()
     fee = pool.functions.fee().call()
     tick_spacing = pool.functions.tickSpacing().call()
+    
     return {
         "pool": pool,
         "token0": {"address": token0.address, "symbol": symbol0, "decimals": decimals0},
@@ -218,6 +227,14 @@ def run():
     # Connect to Web3
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     w3 = connect_web3_client(rpc)
+    if not w3:
+        raise Exception("Failed to connect to Web3 client")
+    # small checks to see if connection works
+    chain_id = w3.eth.chain_id
+    block_number = w3.eth.block_number
+    print(f"Connected to chain {chain_id} at block {block_number}")
+
+
 
     # Two fee tiers per pair (0.05% and 0.30%)
     view_a = get_pool_view(w3, pools["USDC_WETH_005"])
@@ -228,7 +245,7 @@ def run():
 
     # main loop
     while datetime.now(timezone.utc) < end_time:
-        time = datetime.now(timezone.utc).isoformat()
+        time_stamp = datetime.now(timezone.utc).isoformat()
 
         # Pool 1 @ 0.05%
         slot0_a = view_a["pool"].functions.slot0().call()
@@ -256,7 +273,7 @@ def run():
         
         # Fill out rows
         rows.append({
-            "timestamp": time,
+            "timestamp": time_stamp,
             "poolA_address": view_a["pool"].address,
             "poolB_address": view_b["pool"].address,
             "symbol_pair": f"{view_a['token0']['symbol']}/{view_a['token1']['symbol']}",
@@ -275,16 +292,17 @@ def run():
             "tickB": tick_b
         })
 
-        print(f"Sampled at {time}\n")
+        print(f"Sampled at {time_stamp}\n")
         print(f"Price A = {price_a:.6f}, Price B = {price_b:.6f}\n")
         print(f"Cross Dev = {cross_pool_deviation:.4f}%\n") 
         print(f"TWAP Dev A = {twap_deviation_a:.4f}%, TWAP Dev B = {twap_deviation_b:.4f}%")
 
         time.sleep(interval_seconds)
-        # Save to CSV
-        df = pd.DataFrame(rows)
-        df.to_csv(os.path.join(os.path.dirname(ROOT), config["OUTPUT_PATH"]), index=False)
-        print(f"Successfully saved to {config["OUTPUT_PATH"]}")
+    
+    # Save to CSV
+    df = pd.DataFrame(rows)
+    df.to_csv(output_path, index=False)
+    print(f"Successfully saved to {config['OUTPUT_PATH']}")
         
 
 ## Run the script!
