@@ -92,14 +92,14 @@ Using public **RPC endpoints** is sufficient for light analytics when including 
 ### Summary
 From a broader perspective, the dataset demonstrates how Uniswap v3's design of multiple fee tiers and concetrated liquidity influences price behavior. Each fee tier attracts different types of liquidity providers, as 0.05% is sued for higher-volume, lower-volatility pairs, while 0.3% is for more volatile conditions. Despite their differences, they both respond almost identically to market movements. The very small price difference I measured confirms that even though liquidity is distributed across different pools, the market collectively prices assets as if there was a single, unified order book.
 
-In summary, this project showsL
+In summary, this project shows:
 - Ethereum's decentralized markets are extremely efficient, with arbitrage keeping Uniswap v3's fee tiers tightly synchronized
 - Uniswap's TWAP mechanism produces a stable, mean-reverting reference price that quickly corrects temporary order-flow imbalances
 - Liquidity governs how far prices can temporarily drift before arbitrage resores uniformity.
 - Observing and quantifying these deviations provides a window into the hidden mechanics of MEV, market efficiency, and liquidity health in decentralized finance. 
 
 ## References
-- Ethereum JSON-RPC Spec: ethereum.org/developers/docs/apis/json-rpc
+- Ethereum JSON-RPC Spec: https://ethereum.org/developers/docs/apis/json-rpc
 - Uniswap v3 documentation: https://docs.uniswap.org/
 - Public RPC Endpoints: PublicNode and Ankr
 
