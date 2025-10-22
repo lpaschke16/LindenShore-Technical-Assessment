@@ -1,17 +1,63 @@
-# LindenShore-Technical-Assessment
+# Linden Shore Technical Assessment
 
 ## Uniswap v3 Liquidity Imbalance & Arbitrage Signal Tracker
 
 Samples Uniswap v3 USDC/WETH pools (0.05% & 0.30%) through the **Ethereum JSON-RPC API**.
 
-The script uses `web3.py`, which sends the same JSON-RPC calls described at
-[ethereum.org/developers/docs/apis/json-rpc](https://ethereum.org/developers/docs/apis/json-rpc/)
-— for example:
-- `eth_call` to read smart-contract state (`slot0`, `observe`, `liquidity`)
-- `eth_blockNumber` to confirm connectivity
+This project connects to the Ethereum Mainnet via a free public RPC endpoint (https://ethereum-rpc.publicnode.com) and uses the JSON-RPC API to query **Uniswap v3** liquidity pool state data directly on-chain.
 
-### Quickstart
-```bash
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-python src/univ3_arb_tracker.py
+When the primary script, **univ3_arb_tracker.py** is run, it continuously samples two Uniswap v3 liquidity pools for the same pair, **USDC/WETH**, with different fee tiers (0.05% and 0.3%). This data is used to measure:
+- Cross-pool price deviations (arbitrage/MEV opportunites)
+- Time-Weighted Average Price (TWAP) deviations. or short-term mean-reversion signals
+- Liquidity depth and active ticks.
+
+All data sampled from the script is stored locally in a CSV file for later analysis.
+
+## How to Run the Code
+
+### 1. Set up Environment
+- Python ≥ 3.8
+- ```pip install -r requirements.txt```
+
+### 2. Configure the RPC
+In **config.json**, set the Ethereum endpoint to the RPC.
+Ex:
+```
+{
+    "ETH_RPC": "https://ethereum-rpc.publicnode.com",
+    "ETH_RPC_BACKUP": ["https://rpc.ankr.com/eth/2bd88d0b1410a01dc69088770efb89b5e3af7648f2882ae7c5abcd01e1f63483"],
+    "POOLS": {
+      "USDC_WETH_005": "0x88e6A0c2dDD26FEEb64F039a2c41296FcB3f5640",
+      "USDC_WETH_03":  "0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8"
+    },
+    "SAMPLE_INTERVAL_SECONDS": 5,
+    "RUN_DURATION_MINUTES": 1,
+    "OUTPUT_PATH": "./data/univ3_snapshots.csv"
+  }
+```
+Note: I list two separate endpoints here for resilience in case one fails
+
+### 3. Run the tracker
+From the **src/** directory, run:
+```python univ3_arb_tracker.py```
+
+If run successfully, you should see console output like this:
+```
+Connected to chain 1 at block 23629307
+Sampled at 2025-10-21T23:49:28.486854+00:00
+Price A = 0.000258, Price B = 0.000258
+Cross Dev = 0.0123%
+TWAP Dev A = 0.0518%, TWAP Dev B = 0.0095%
+...
+Successfully saved to ./data/univ3_snapshots.csv
+```
+
+Results will be stored in the specified CSV file
+
+
+## What Data the Script Collects
+Each row in ***univ3_snapshots.csv*** corresponds to one on-chain snapshot containing
+
+
+
+
