@@ -1,13 +1,10 @@
 """
-LindenShore Technical Assessment - Uniswap v3 Liquidity Imbalance and Arbitrage Signal Tracker
+LindenShore Technical Assessment - Uniswap v3 Liquidity Imbalance and Arbitrage Tracker
 
 This script samples two Uniswap v3 pools for the same pair but different fee tiers
-(ex: USDC/WETH 0.05% and 0.30%) via Ethereum JSON-RPC. It records spot price
-(slot0.sqrtPriceX96), a 5-minute Time Weighted Average Price (from observe()), cross-pool price
-deviation (a DEX arbitrage cue), and spot–TWAP deviations (a microstructure/
-mean-reversion cue), along with in-range liquidity and ticks. The results are saved to a CSV file.
+(ex: USDC/WETH 0.05% and 0.30%) via Ethereum JSON-RPC. The results are saved to a CSV file.
 
-By: Lucas Paschke
+Created By: Lucas Paschke
 """
 
 
