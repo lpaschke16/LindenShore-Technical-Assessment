@@ -71,9 +71,25 @@ Each row in ***univ3_snapshots.csv*** corresponds to one on-chain snapshot conta
 | **liquidityA / liquidityB**                             | In-range liquidity values                       |
 | **tickA / tickB**                                       | Current tick index (discrete price step)        |
 
+## What I Learned from the Data
+### 1. Market Efficiency Across Fee Tiers
+After analyzing the data, it is clear that the cross-pool deviations consistently stayed within the range of 0.01 - ~0.15%, which is much less than the combined fee spread of 0.35%. This indicates that Ethereum's Uniswap pools are **tightly arbitraged** and highly efficient 
 
+### 2. Mean-Reversion Around TWAP
+TWAP deviations averaged to values near zero, which confirms that Uniswap v3 prices revert quickly to their recent averages. This is an indicator of high liquidity and efficient price discovery on the chain.
 
+### 3. Liquidity effects Volatility
+In the data, when **liquidityA** or **liquidityB** dipped temporarily, cross-pool deviations widened consequently. This indicates that lower liquidity (in range) allows for greater short term disorder, which is consistent with well-known market theories.
 
+### 4. Infrastructure
+Using public **RPC endpoints** is sufficient for light analytics when including retry logic to catch instances of failed connections. On the other hand, I experimented with more in-depth Ethereum node connection methods, like running a local **Geth** node to host my own RPC endpoint on my local host. This method, and many similar methods using other technologies listed in https://ethereum.org/developers/docs/nodes-and-clients/, are more suitable for higher-frequency work. It was more straightforward to use the public RPC, so I opted for that method.
+
+## References
+- Ethereum JSON-RPC Spec: ethereum.org/developers/docs/apis/json-rpc
+- Uniswap v3 documentation: https://docs.uniswap.org/
+- Public RPC Endpoints: PublicNode and Ankr
+
+  
 
 
 
